@@ -4,7 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Làm Quen Với Chính</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Kiểu dáng cơ bản */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .fireworks {
+            font-size: 1.5em;
+            color: #ff6f61;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,11 +54,60 @@
 
         <div id="questionContainer" style="display: none;">
             <p id="question"></p>
-            <div id="answerButtons"></div>
+            <button id="yesButton" onclick="nextQuestion('yes')">Có</button>
+            <button id="noButton" onclick="nextQuestion('no')">Không</button>
         </div>
+
+        <p id="fireworks" class="fireworks" style="display: none;">🎉 Số điện thoại của Chính: 0975070643 🎉</p>
     </div>
 
-    <!-- Đảm bảo dòng dưới đây đúng -->
-    <script src="script.js"></script>
+    <script>
+        let currentQuestion = 0;
+        const questions = [
+            "Bạn biết Chính qua đâu?",
+            "Bạn có thích Chính chứ?",
+            "Làm quen với tớ nhé?"
+        ];
+
+        function start() {
+            const name = document.getElementById("nameInput").value;
+            if (name) {
+                document.querySelector("h1").textContent = `Chào ${name}!`;
+                document.getElementById("nameInput").style.display = "none";
+                document.querySelector("button").style.display = "none";
+                document.getElementById("questionContainer").style.display = "block";
+                showQuestion();
+            } else {
+                alert("Hãy nhập tên của bạn nhé!");
+            }
+        }
+
+        function showQuestion() {
+            document.getElementById("question").textContent = questions[currentQuestion];
+            document.getElementById("yesButton").style.display = "inline";
+            document.getElementById("noButton").style.display = "inline";
+        }
+
+        function nextQuestion(answer) {
+            if (currentQuestion === 2 && answer === "yes") {
+                document.getElementById("fireworks").style.display = "block";
+                document.getElementById("questionContainer").style.display = "none";
+            } else if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else if (answer === "no" && currentQuestion === 2) {
+                moveButton();
+            }
+        }
+
+        function moveButton() {
+            const noButton = document.getElementById("noButton");
+            const x = Math.random() * (window.innerWidth - noButton.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noButton.offsetHeight);
+            noButton.style.position = "absolute";
+            noButton.style.left = `${x}px`;
+            noButton.style.top = `${y}px`;
+        }
+    </script>
 </body>
 </html>

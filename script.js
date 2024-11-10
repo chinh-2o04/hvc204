@@ -1,52 +1,36 @@
-function uploadFile() {
-    const fileInput = document.getElementById('file-upload');
-    const file = fileInput.files[0];
-    if (!file) {
-        alert("Hãy chọn một file để tải lên!");
-        return;
+let questions = []; // This will store all questions from JSON
+
+// Function to load questions
+async function loadQuestions() {
+  const response = await fetch('questions.json');
+  questions = await response.json();
+}
+
+function startQuiz() {
+  const randomQuestions = [];
+  while (randomQuestions.length < 30) {
+    const randomIndex = Math.floor(Math.random() * questions.length);
+    if (!randomQuestions.includes(questions[randomIndex])) {
+      randomQuestions.push(questions[randomIndex]);
     }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    fetch('/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert(data.error);
-        } else {
-            displayQuiz(data);
-        }
-    })
-    .catch(error => console.error('Error:', error));
+  }
+  displayQuestions(randomQuestions);
 }
 
-function displayQuiz(questions) {
-    const quizContainer = document.getElementById('quiz-container');
-    quizContainer.innerHTML = '';
-    questions.forEach((question, index) => {
-        const questionDiv = document.createElement('div');
-        questionDiv.classList.add('question');
-
-        const questionText = document.createElement('h3');
-        questionText.innerText = `${index + 1}. ${question.question}`;
-        questionDiv.appendChild(questionText);
-
-        question.options.forEach((option, idx) => {
-            const optionDiv = document.createElement('div');
-            optionDiv.classList.add('option');
-            optionDiv.innerText = option;
-            optionDiv.onclick = () => selectOption(optionDiv, index, questions);
-            questionDiv.appendChild(optionDiv);
-        });
-
-        quizContainer.appendChild(questionDiv);
-    });
+function displayQuestions(questionsArray) {
+  const questionContainer = document.getElementById('question-container');
+  questionContainer.innerHTML = '';
+  questionsArray.forEach((question, index) => {
+    const questionElement = document.createElement('div');
+    questionElement.innerHTML = `
+      <h2>Question ${index + 1}</h2>
+      <p>${question.question}</p>
+      ${question.options.map(
+        (option, i) => `<input type="radio" name="q${index}" value="${option}">${option}<br>`
+      ).join('')}
+    `;
+    questionContainer.appendChild(questionElement);
+  });
 }
 
-function selectOption(optionDiv, questionIndex, questions) {
-    // Your logic to handle the selection of options (highlight correct answer, etc.)
-}
+loadQuestions();

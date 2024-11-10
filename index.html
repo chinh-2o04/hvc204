@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -38,28 +38,62 @@
             font-size: 16px;
             cursor: pointer;
         }
+        #controlButtons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <h1>Trò chơi Rắn Săn Mồi</h1>
     <div id="gameArea"></div>
     <button id="startBtn" onclick="startGame()">Bắt đầu trò chơi</button>
+    
+    <div id="controlButtons" class="hidden">
+        <button onclick="changeDirection('UP')">Lên</button>
+        <button onclick="changeDirection('DOWN')">Xuống</button>
+        <button onclick="changeDirection('LEFT')">Trái</button>
+        <button onclick="changeDirection('RIGHT')">Phải</button>
+    </div>
+
+    <p id="score">Điểm: 0</p>
+    <p id="winMessage" class="hidden">Chúc mừng! Bạn đã thắng!</p>
 
     <script>
         let snake = [{x: 50, y: 50}];
         let direction = 'RIGHT';
-        let food = {x: 100, y: 100};
+        let food = {x: Math.floor(Math.random() * 29) * 10, y: Math.floor(Math.random() * 29) * 10};
         let gameInterval;
         let isGameRunning = false;
-
+        let score = 0;
+        let foodEaten = 0;
+        
         function startGame() {
             document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('controlButtons').style.display = 'block'; // Hiển thị nút điều khiển
+            document.getElementById('score').textContent = 'Điểm: ' + score;
             snake = [{x: 50, y: 50}];
             direction = 'RIGHT';
             food = {x: Math.floor(Math.random() * 29) * 10, y: Math.floor(Math.random() * 29) * 10};
+            foodEaten = 0;
+            score = 0;
             isGameRunning = true;
             gameInterval = setInterval(gameLoop, 100);
-            document.addEventListener('keydown', changeDirection);
         }
 
         function gameLoop() {
@@ -78,6 +112,9 @@
 
             if (head.x === food.x && head.y === food.y) {
                 food = {x: Math.floor(Math.random() * 29) * 10, y: Math.floor(Math.random() * 29) * 10};
+                foodEaten++;
+                score += 10; // Tăng điểm mỗi lần ăn thức ăn
+                document.getElementById('score').textContent = 'Điểm: ' + score;
             } else {
                 snake.pop();
             }
@@ -86,6 +123,15 @@
                 clearInterval(gameInterval);
                 alert("Game Over! Bạn đã đâm vào chính mình hoặc tường.");
                 document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('controlButtons').style.display = 'none';
+                isGameRunning = false;
+            }
+
+            if (foodEaten === 15) {
+                clearInterval(gameInterval);
+                document.getElementById('winMessage').style.display = 'block';
+                document.getElementById('startBtn').style.display = 'inline-block';
+                document.getElementById('controlButtons').style.display = 'none';
                 isGameRunning = false;
             }
 
@@ -109,14 +155,14 @@
             return false;
         }
 
-        function changeDirection(event) {
-            if (event.key === 'ArrowUp' && direction !== 'DOWN') {
+        function changeDirection(newDirection) {
+            if (newDirection === 'UP' && direction !== 'DOWN') {
                 direction = 'UP';
-            } else if (event.key === 'ArrowDown' && direction !== 'UP') {
+            } else if (newDirection === 'DOWN' && direction !== 'UP') {
                 direction = 'DOWN';
-            } else if (event.key === 'ArrowLeft' && direction !== 'RIGHT') {
+            } else if (newDirection === 'LEFT' && direction !== 'RIGHT') {
                 direction = 'LEFT';
-            } else if (event.key === 'ArrowRight' && direction !== 'LEFT') {
+            } else if (newDirection === 'RIGHT' && direction !== 'LEFT') {
                 direction = 'RIGHT';
             }
         }
@@ -144,3 +190,4 @@
     </script>
 </body>
 </html>
+

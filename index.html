@@ -81,6 +81,17 @@
             top: 150px;
             left: 50px;
         }
+
+        #arrowButton {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #007bff;
+            background: none;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +113,9 @@
         </div>
 
         <p id="fireworks" class="fireworks" style="display: none;">🎉 Số điện thoại của Chính: 0975070643 🎉</p>
+
+        <!-- Mũi tên di chuyển -->
+        <button id="arrowButton" onclick="moveArrow()">➔</button>
     </div>
 
     <script>
@@ -204,6 +218,18 @@
 
             noButton.style.left = randomX + "px";
             noButton.style.top = randomY + "px";
+        }
+
+        function moveArrow() {
+            const arrowButton = document.getElementById("arrowButton");
+            const maxX = window.innerWidth - arrowButton.offsetWidth;
+            const maxY = window.innerHeight - arrowButton.offsetHeight;
+
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+
+            arrowButton.style.left = randomX + "px";
+            arrowButton.style.top = randomY + "px";
         }
 
         function nextQuestion(answer) {

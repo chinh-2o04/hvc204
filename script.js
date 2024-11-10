@@ -1,31 +1,54 @@
-const questions = [
-    {
-        question: "Đâu là phần tử trung tâm không thể thiếu trong hệ truyền động điện?",
-        image: "images/question1.jpg", // Đường dẫn đến hình ảnh (nếu có)
-        answers: [
-            { text: "Bộ biến đổi", correct: false },
-            { text: "Động cơ điện", correct: true },
-            { text: "Bộ điều khiển", correct: false },
-            { text: "Bộ truyền và biến lực", correct: false }
-        ]
-    },
-    {
-        question: "Đâu là phát biểu đúng cho hệ truyền động không điều chỉnh?",
-        answers: [
-            { text: "Động cơ làm việc ở cả hai chiều quay", correct: false },
-            { text: "Động cơ làm việc ở nhiều cấp tốc độ khác nhau", correct: false },
-            { text: "Động cơ làm việc ở một cấp độ", correct: true },
-            { text: "Động cơ chỉ quay được một chiều", correct: false }
-        ]
-    },
-    {
-        question: "Đặc tính cơ của động cơ điện là gì?",
-        answers: [
-            { text: "Mối quan hệ giữa tốc độ quay trên trục động cơ và mômen quay", correct: true },
-            { text: "Mối quan hệ giữa điện áp và dòng điện", correct: false },
-            { text: "Mối quan hệ giữa điện áp và từ thông", correct: false },
-            { text: "Mối quan hệ giữa từ thông và điện trở", correct: false }
-        ]
-    },
-    // Thêm các câu hỏi khác theo định dạng này...
-];
+let questions = [];
+let currentQuestionIndex = 0;
+let score = 0;
+
+// Load questions from JSON
+async function loadQuestions() {
+    const response = await fetch("questions.json");
+    questions = await response.json();
+    displayQuestion();
+}
+
+// Display current question
+function displayQuestion() {
+    const questionContainer = document.getElementById("question-container");
+    const question = questions[currentQuestionIndex];
+
+    questionContainer.innerHTML = `
+        <h3>${question.question}</h3>
+        ${question.options.map((option, index) => `
+            <div class="option" onclick="selectAnswer(${index})">${option}</div>
+        `).join("")}
+    `;
+}
+
+// Handle answer selection
+function selectAnswer(selectedIndex) {
+    const question = questions[currentQuestionIndex];
+    const correctOption = question.options.findIndex(option => option.includes('<span style="color:red">'));
+    if (selectedIndex === correctOption) {
+        score++;
+    }
+    document.querySelectorAll(".option").forEach((opt, idx) => {
+        opt.style.backgroundColor = idx === correctOption ? "green" : idx === selectedIndex ? "red" : "#e4e4e4";
+    });
+    document.getElementById("next-button").style.display = "block";
+}
+
+// Load the next question
+function loadNextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        displayQuestion();
+        document.getElementById("next-button").style.display = "none";
+    } else {
+        displayScore();
+    }
+}
+
+// Display score
+function displayScore() {
+    document.getElementById("quiz-container").innerHTML = `<h3>Your Score: ${score} / ${questions.length}</h3>`;
+}
+
+loadQuestions();

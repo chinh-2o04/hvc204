@@ -1,1 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chơi Khủng Long</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        #introScreen {
+            margin-top: 50px;
+        }
+        #gameArea {
+            width: 600px;
+            height: 200px;
+            background-color: #f0f0f0;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .dino {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            width: 50px;
+            height: 50px;
+            background-color: #00ff00;
+            border-radius: 50%;
+        }
+        .dino .head {
+            width: 20px;
+            height: 20px;
+            background-color: #ff7f00;
+            border-radius: 50%;
+            position: absolute;
+            top: -20px;
+            left: 15px;
+        }
+        .dino .body {
+            width: 35px;
+            height: 30px;
+            background-color: #00cc00;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-radius: 5px;
+        }
+        .obstacle {
+            position: absolute;
+            bottom: 0;
+            width: 20px;
+            height: 50px;
+            background-color: #000;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #winMessage {
+            font-size: 20px;
+            color: green;
+            font-weight: bold;
+            display: none;
+        }
+        #reward {
+            font-size: 18px;
+            color: green;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trò chơi Khủng Long</h1>
+    
+    <!-- Màn hình làm quen -->
+    <div id="introScreen">
+        <p>Làm quen với tớ nhé?</p>
+        <button id="agreeBtn" onclick="startGame()">Đồng ý</button>
+        <button id="disagreeBtn" onclick="moveButton()">Không đồng ý</button>
+    </div>
+
+    <!-- Màn chơi game -->
+    <div id="gameArea">
+        <div id="dino" class="dino">
+            <div class="head"></div>
+            <div class="body"></div>
+        </div>
+    </div>
+
+    <p id="winMessage">Chúc mừng! Bạn đã thắng!</p>
+    <p id="reward"></p>
+    <button id="claimBtn" onclick="claimReward()" style="display: none;">Nhận phần thưởng</button>
+
+    <script>
+        // Game Variables
+        let dino = document.getElementById('dino');
+        let gameArea = document.getElementById('gameArea');
+        let winMessage = document.getElementById('winMessage');
+        let rewardMessage = document.getElementById('reward');
+        let claimBtn = document.getElementById('claimBtn');
+        let isGameRunning = false;
+        let dinoY = 0;
+        let jumpHeight = 100;
+        let isJumping = false;
+        let obstacles = [];
+        let score = 0;
+        let gameInterval;
+        
+        // Start Game
+        function startGame() {
+            document.getElementById('introScreen').style.display = 'none'; // Ẩn màn hình làm quen
+            gameArea.style.display = 'block'; // Hiển thị khu vực chơi game
+            document.addEventListener('keydown', handleKeydown); // Lắng nghe sự kiện phím nhấn
+            isGameRunning = true;
+            score = 0;
+            obstacles = [];
+            gameInterval = setInterval(gameLoop, 20);
+        }
+
+        // Move Dino (Jump)
+        function handleKeydown(event) {
+            if (event.code === 'Space' && !isJumping) {
+                jump();
+            }
+        }
+
+        // Jump Function
+        function jump() {
+            isJumping = true;
+            let jumpInterval = setInterval(() => {
+                if (dinoY < jumpHeight) {
+                    dinoY += 5;
+                    dino.style.bottom = `${dinoY}px`;
+                } else {
+                    clearInterval(jumpInterval);
+                    let fallInterval = setInterval(() => {
+                        if (dinoY > 0) {
+                            dinoY -= 5;
+                            dino.style.bottom = `${dinoY}px`;
+                        } else {
+                            clearInterval(fallInterval);
+                            isJumping = false;
+                        }
+                    }, 20);
+                }
+            }, 20);
+        }
+
+        // Generate obstacles
+        function generateObstacle() {
+            let obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            obstacle.style.left = '600px';
+            gameArea.appendChild(obstacle);
+            obstacles.push(obstacle);
+        }
+
+        // Move obstacles
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                let obstacle = obstacles[i];
+                let obstacleX = parseInt(obstacle.style.left.replace('px', ''));
+
+                if (obstacleX <= 0) {
+                    obstacle.remove();
+                    obstacles.splice(i, 1);
+                    score++;
+                } else {
+                    obstacle.style.left = `${obstacleX - 5}px`;
+                }
+
+                // Collision detection
+                if (obstacleX <= 100 && obstacleX > 50 && dinoY === 0) {
+                    clearInterval(gameInterval);
+                    showWinMessage();
+                    isGameRunning = false;
+                }
+            }
+        }
+
+        // Show Winning Message and Reward
+        function showWinMessage() {
+            winMessage.style.display = 'block';
+            const reward = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
+            rewardMessage.textContent = `Phần thưởng của bạn là: ${reward}k đồng!`;
+            rewardMessage.style.display = 'block';
+            claimBtn.style.display = 'inline-block';
+        }
+
+        // Claim Reward
+        function claimReward() {
+            alert("Phần thưởng của bạn sẽ được gửi qua số điện thoại: 0975070643");
+            claimBtn.style.display = 'none';
+            rewardMessage.style.display = 'none';
+            winMessage.style.display = 'none';
+        }
+
+        // Game Loop
+        function gameLoop() {
+            if (isGameRunning) {
+                if (Math.random() < 0.02) {
+                    generateObstacle();
+                }
+                moveObstacles();
+            }
+        }
+
+        // Move "Không đồng ý" Button
+        function moveButton() {
+            const disagreeBtn = document.getElementById('disagreeBtn');
+            const randomX = Math.floor(Math.random() * window.innerWidth);
+            const randomY = Math.floor(Math.random() * window.innerHeight);
+            disagreeBtn.style.position = "absolute";
+            disagreeBtn.style.left = `${randomX}px`;
+            disagreeBtn.style.top = `${randomY}px`;
+        }
+    </script>
+</body>
+</html>
 

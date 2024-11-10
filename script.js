@@ -1,54 +1,52 @@
-let questions = [];
-let currentQuestionIndex = 0;
-let score = 0;
-
-// Load questions from JSON
-async function loadQuestions() {
-    const response = await fetch("questions.json");
-    questions = await response.json();
-    displayQuestion();
-}
-
-// Display current question
-function displayQuestion() {
-    const questionContainer = document.getElementById("question-container");
-    const question = questions[currentQuestionIndex];
-
-    questionContainer.innerHTML = `
-        <h3>${question.question}</h3>
-        ${question.options.map((option, index) => `
-            <div class="option" onclick="selectAnswer(${index})">${option}</div>
-        `).join("")}
-    `;
-}
-
-// Handle answer selection
-function selectAnswer(selectedIndex) {
-    const question = questions[currentQuestionIndex];
-    const correctOption = question.options.findIndex(option => option.includes('<span style="color:red">'));
-    if (selectedIndex === correctOption) {
-        score++;
+function uploadFile() {
+    const fileInput = document.getElementById('file-upload');
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Hãy chọn một file để tải lên!");
+        return;
     }
-    document.querySelectorAll(".option").forEach((opt, idx) => {
-        opt.style.backgroundColor = idx === correctOption ? "green" : idx === selectedIndex ? "red" : "#e4e4e4";
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            displayQuiz(data);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function displayQuiz(questions) {
+    const quizContainer = document.getElementById('quiz-container');
+    quizContainer.innerHTML = '';
+    questions.forEach((question, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+
+        const questionText = document.createElement('h3');
+        questionText.innerText = `${index + 1}. ${question.question}`;
+        questionDiv.appendChild(questionText);
+
+        question.options.forEach((option, idx) => {
+            const optionDiv = document.createElement('div');
+            optionDiv.classList.add('option');
+            optionDiv.innerText = option;
+            optionDiv.onclick = () => selectOption(optionDiv, index, questions);
+            questionDiv.appendChild(optionDiv);
+        });
+
+        quizContainer.appendChild(questionDiv);
     });
-    document.getElementById("next-button").style.display = "block";
 }
 
-// Load the next question
-function loadNextQuestion() {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        displayQuestion();
-        document.getElementById("next-button").style.display = "none";
-    } else {
-        displayScore();
-    }
+function selectOption(optionDiv, questionIndex, questions) {
+    // Your logic to handle the selection of options (highlight correct answer, etc.)
 }
-
-// Display score
-function displayScore() {
-    document.getElementById("quiz-container").innerHTML = `<h3>Your Score: ${score} / ${questions.length}</h3>`;
-}
-
-loadQuestions();

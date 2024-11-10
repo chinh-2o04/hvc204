@@ -38,14 +38,14 @@
             background-color: #0056b3;
         }
 
-        .fireworks {
+        #gameContainer {
+            display: none;
+        }
+
+        #fireworks {
             font-size: 1.5em;
             color: #ff6f61;
             margin-top: 20px;
-        }
-
-        #gameContainer {
-            display: none;
         }
     </style>
 </head>
@@ -57,10 +57,11 @@
         <button onclick="start()">Bắt đầu</button>
 
         <div id="gameContainer">
-            <h2>Trò chơi Đoán Số</h2>
-            <p>Đoán một số từ 1 đến 10:</p>
-            <input type="number" id="guessInput" min="1" max="10" placeholder="Số bạn đoán">
-            <button onclick="checkGuess()">Đoán</button>
+            <h2>Trò chơi Ghi Nhớ</h2>
+            <p>Nhớ chuỗi ký tự sau:</p>
+            <div id="sequence"></div>
+            <input type="text" id="guessInput" placeholder="Nhập lại chuỗi ký tự">
+            <button onclick="checkMemory()">Kiểm tra</button>
             <p id="gameMessage"></p>
         </div>
 
@@ -79,7 +80,8 @@
             "Làm quen với tớ nhé?"
         ];
 
-        let randomNumber;
+        let sequence = [];
+        let sequenceLength = 3; // Độ dài chuỗi cần nhớ
 
         function start() {
             const name = document.getElementById("nameInput").value;
@@ -96,14 +98,31 @@
 
         function startGame() {
             document.getElementById("gameContainer").style.display = "block";
-            randomNumber = Math.floor(Math.random() * 10) + 1; // Tạo số ngẫu nhiên từ 1 đến 10
-            document.getElementById("gameMessage").textContent = "Hãy đoán một số từ 1 đến 10!";
+            generateSequence();
+            document.getElementById("gameMessage").textContent = "Nhớ chuỗi ký tự này!";
+            setTimeout(hideSequence, 3000); // Ẩn chuỗi sau 3 giây
         }
 
-        function checkGuess() {
-            const guess = document.getElementById("guessInput").value;
-            if (guess == randomNumber) {
-                document.getElementById("gameMessage").textContent = "Chúc mừng, bạn đoán đúng!";
+        function generateSequence() {
+            sequence = [];
+            for (let i = 0; i < sequenceLength; i++) {
+                const randomChar = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+                sequence.push(randomChar);
+            }
+            document.getElementById("sequence").textContent = sequence.join(" ");
+        }
+
+        function hideSequence() {
+            document.getElementById("sequence").textContent = ""; // Ẩn chuỗi
+            document.getElementById("gameMessage").textContent = "Nhập lại chuỗi ký tự:";
+        }
+
+        function checkMemory() {
+            const userGuess = document.getElementById("guessInput").value.toUpperCase();
+            const correctSequence = sequence.join("").toUpperCase();
+
+            if (userGuess === correctSequence) {
+                document.getElementById("gameMessage").textContent = "Chúc mừng, bạn nhớ đúng!";
                 document.getElementById("questionContainer").style.display = "block"; // Hiện câu hỏi tiếp theo
                 document.getElementById("gameContainer").style.display = "none"; // Ẩn trò chơi
             } else {

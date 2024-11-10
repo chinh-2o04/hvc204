@@ -1,18 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Generator</title>
+    <title>Làm Quen Với Chính</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="upload-container">
-        <h2>Tải lên file câu hỏi để tạo đề trắc nghiệm</h2>
-        <input type="file" id="file-upload" accept=".docx, .pdf">
-        <button onclick="uploadFile()">Tạo Đề</button>
-        <div id="quiz-container"></div>
+    <div class="container">
+        <h1>Chào bạn!</h1>
+        <p>Nhập tên của bạn:</p>
+        <input type="text" id="nameInput" placeholder="Tên của bạn">
+        <button onclick="start()">Bắt đầu</button>
+
+        <div id="questionContainer" style="display: none;">
+            <p id="question"></p>
+            <div id="answerButtons"></div>
+        </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

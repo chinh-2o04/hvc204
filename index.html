@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò chơi Khủng Long</title>
+    <title>Trò chơi Xe Tăng</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,7 +17,7 @@
         }
         #gameArea {
             width: 600px;
-            height: 200px;
+            height: 400px;
             background-color: #f0f0f0;
             margin: 0 auto;
             position: relative;
@@ -25,40 +25,30 @@
             display: none;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: #c0c0c0;
         }
-        .dino {
+        .tank {
             position: absolute;
-            bottom: 0;
-            left: 50px;
-            width: 50px;
-            height: 50px;
-            background-color: #00ff00;
-            border-radius: 50%;
-        }
-        .dino .head {
-            width: 20px;
-            height: 20px;
-            background-color: #ff7f00;
-            border-radius: 50%;
-            position: absolute;
-            top: -20px;
-            left: 15px;
-        }
-        .dino .body {
-            width: 35px;
-            height: 30px;
-            background-color: #00cc00;
-            position: absolute;
-            bottom: 0;
-            left: 0;
+            bottom: 20px;
+            left: 270px;
+            width: 60px;
+            height: 40px;
+            background-color: #008000;
             border-radius: 5px;
         }
-        .obstacle {
+        .bullet {
             position: absolute;
-            bottom: 0;
+            width: 5px;
+            height: 20px;
+            background-color: red;
+            display: none;
+        }
+        .falling-item {
+            position: absolute;
             width: 20px;
-            height: 50px;
-            background-color: #000;
+            height: 20px;
+            background-color: yellow;
+            border-radius: 5px;
         }
         button {
             padding: 10px 20px;
@@ -88,7 +78,7 @@
     </style>
 </head>
 <body>
-    <h1>Trò chơi Khủng Long</h1>
+    <h1>Trò chơi Xe Tăng</h1>
     
     <!-- Màn hình làm quen -->
     <div id="introScreen">
@@ -99,10 +89,8 @@
 
     <!-- Màn chơi game -->
     <div id="gameArea">
-        <div id="dino" class="dino">
-            <div class="head"></div>
-            <div class="body"></div>
-        </div>
+        <div id="tank" class="tank"></div>
+        <div id="bullet" class="bullet"></div>
     </div>
 
     <p id="winMessage">Chúc mừng! Bạn đã thắng!</p>
@@ -111,19 +99,20 @@
 
     <script>
         // Game Variables
-        let dino = document.getElementById('dino');
+        let tank = document.getElementById('tank');
+        let bullet = document.getElementById('bullet');
         let gameArea = document.getElementById('gameArea');
         let winMessage = document.getElementById('winMessage');
         let rewardMessage = document.getElementById('reward');
         let claimBtn = document.getElementById('claimBtn');
         let isGameRunning = false;
-        let dinoY = 0;
-        let jumpHeight = 100;
-        let isJumping = false;
-        let obstacles = [];
+        let tankX = 270;
+        let isShooting = false;
+        let fallingItems = [];
         let score = 0;
         let gameInterval;
-        
+        let bulletY = 0;
+
         // Start Game
         function startGame() {
             document.getElementById('introScreen').style.display = 'none'; // Ẩn màn hình làm quen
@@ -131,67 +120,83 @@
             document.addEventListener('keydown', handleKeydown); // Lắng nghe sự kiện phím nhấn
             isGameRunning = true;
             score = 0;
-            obstacles = [];
+            fallingItems = [];
             gameInterval = setInterval(gameLoop, 20);
         }
 
-        // Move Dino (Jump)
+        // Move Tank (Left and Right)
         function handleKeydown(event) {
-            if (event.code === 'Space' && !isJumping) {
-                jump();
+            if (event.code === 'ArrowLeft' && tankX > 0) {
+                tankX -= 10;
+                tank.style.left = `${tankX}px`;
+            } else if (event.code === 'ArrowRight' && tankX < 540) {
+                tankX += 10;
+                tank.style.left = `${tankX}px`;
+            } else if (event.code === 'Space' && !isShooting) {
+                shoot();
             }
         }
 
-        // Jump Function
-        function jump() {
-            isJumping = true;
-            let jumpInterval = setInterval(() => {
-                if (dinoY < jumpHeight) {
-                    dinoY += 5;
-                    dino.style.bottom = `${dinoY}px`;
-                } else {
-                    clearInterval(jumpInterval);
-                    let fallInterval = setInterval(() => {
-                        if (dinoY > 0) {
-                            dinoY -= 5;
-                            dino.style.bottom = `${dinoY}px`;
-                        } else {
-                            clearInterval(fallInterval);
-                            isJumping = false;
-                        }
-                    }, 20);
+        // Shoot Bullet
+        function shoot() {
+            isShooting = true;
+            bullet.style.display = 'block';
+            bullet.style.left = `${tankX + 27}px`; // Đặt vị trí bắn từ giữa xe tăng
+            bulletY = 40; // Đặt vị trí ban đầu của viên đạn
+            let shootInterval = setInterval(() => {
+                bulletY += 5;
+                bullet.style.top = `${bulletY}px`;
+                if (bulletY >= 400) {
+                    clearInterval(shootInterval);
+                    bullet.style.display = 'none';
+                    isShooting = false;
                 }
+                checkCollision();
             }, 20);
         }
 
-        // Generate obstacles
-        function generateObstacle() {
-            let obstacle = document.createElement('div');
-            obstacle.classList.add('obstacle');
-            obstacle.style.left = '600px';
-            gameArea.appendChild(obstacle);
-            obstacles.push(obstacle);
+        // Generate Falling Items
+        function generateFallingItem() {
+            let fallingItem = document.createElement('div');
+            fallingItem.classList.add('falling-item');
+            fallingItem.style.left = `${Math.floor(Math.random() * 580)}px`;
+            gameArea.appendChild(fallingItem);
+            fallingItems.push(fallingItem);
         }
 
-        // Move obstacles
-        function moveObstacles() {
-            for (let i = 0; i < obstacles.length; i++) {
-                let obstacle = obstacles[i];
-                let obstacleX = parseInt(obstacle.style.left.replace('px', ''));
-
-                if (obstacleX <= 0) {
-                    obstacle.remove();
-                    obstacles.splice(i, 1);
-                    score++;
+        // Move Falling Items
+        function moveFallingItems() {
+            for (let i = 0; i < fallingItems.length; i++) {
+                let fallingItem = fallingItems[i];
+                let itemY = parseInt(fallingItem.style.top.replace('px', '') || 0);
+                if (itemY > 400) {
+                    fallingItem.remove();
+                    fallingItems.splice(i, 1);
+                    score--;
                 } else {
-                    obstacle.style.left = `${obstacleX - 5}px`;
+                    fallingItem.style.top = `${itemY + 5}px`;
                 }
+            }
+        }
 
-                // Collision detection
-                if (obstacleX <= 100 && obstacleX > 50 && dinoY === 0) {
-                    clearInterval(gameInterval);
-                    showWinMessage();
-                    isGameRunning = false;
+        // Check Bullet Collision with Falling Items
+        function checkCollision() {
+            for (let i = 0; i < fallingItems.length; i++) {
+                let fallingItem = fallingItems[i];
+                let itemX = parseInt(fallingItem.style.left.replace('px', ''));
+                let itemY = parseInt(fallingItem.style.top.replace('px', ''));
+                
+                // Nếu viên đạn và vật phẩm va chạm
+                if (bulletY >= itemY && bulletY <= itemY + 20 && bullet.style.left === fallingItem.style.left) {
+                    fallingItem.remove();
+                    fallingItems.splice(i, 1);
+                    bullet.style.display = 'none';
+                    isShooting = false;
+                    score++;
+                    if (score >= 10) {
+                        clearInterval(gameInterval);
+                        showWinMessage();
+                    }
                 }
             }
         }
@@ -217,9 +222,9 @@
         function gameLoop() {
             if (isGameRunning) {
                 if (Math.random() < 0.02) {
-                    generateObstacle();
+                    generateFallingItem();
                 }
-                moveObstacles();
+                moveFallingItems();
             }
         }
 
@@ -235,5 +240,3 @@
     </script>
 </body>
 </html>
-
-

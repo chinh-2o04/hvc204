@@ -32,7 +32,7 @@
             width: 10px;
             height: 10px;
         }
-        #startBtn {
+        #startBtn, #agreeBtn, #disagreeBtn {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
@@ -66,12 +66,24 @@
             color: green;
             font-weight: bold;
         }
+        #introScreen {
+            margin-top: 50px;
+        }
     </style>
 </head>
 <body>
     <h1>Trò chơi Rắn Săn Mồi</h1>
-    <div id="gameArea"></div>
-    <button id="startBtn" onclick="startGame()">Bắt đầu trò chơi</button>
+    
+    <!-- Màn hình làm quen -->
+    <div id="introScreen">
+        <p>Làm quen với tớ nhé?</p>
+        <button id="agreeBtn" onclick="startGame()">Đồng ý</button>
+        <button id="disagreeBtn" onclick="moveButton()">Không đồng ý</button>
+    </div>
+
+    <!-- Màn chơi game -->
+    <div id="gameArea" class="hidden"></div>
+    <button id="startBtn" class="hidden" onclick="startGame()">Bắt đầu trò chơi</button>
     
     <div id="controlButtons" class="hidden">
         <button onclick="changeDirection('UP')">Lên</button>
@@ -80,7 +92,7 @@
         <button onclick="changeDirection('DOWN')">Xuống</button>
     </div>
 
-    <p id="score">Điểm: 0</p>
+    <p id="score" class="hidden">Điểm: 0</p>
     <p id="winMessage" class="hidden">Chúc mừng! Bạn đã thắng!</p>
 
     <script>
@@ -92,10 +104,13 @@
         let score = 0;
         let foodEaten = 0;
         
+        // Hàm bắt đầu trò chơi
         function startGame() {
-            document.getElementById('startBtn').style.display = 'none';
-            document.getElementById('controlButtons').style.display = 'grid'; // Hiển thị nút điều khiển dạng lưới
-            document.getElementById('score').textContent = 'Điểm: ' + score;
+            document.getElementById('introScreen').style.display = 'none'; // Ẩn màn hình làm quen
+            document.getElementById('gameArea').style.display = 'block'; // Hiển thị khu vực chơi game
+            document.getElementById('controlButtons').style.display = 'grid'; // Hiển thị các nút điều khiển
+            document.getElementById('score').style.display = 'block'; // Hiển thị điểm số
+            document.getElementById('startBtn').style.display = 'none'; // Ẩn nút bắt đầu khi vào game
             snake = [{x: 50, y: 50}];
             direction = 'RIGHT';
             food = {x: Math.floor(Math.random() * 29) * 10, y: Math.floor(Math.random() * 29) * 10};
@@ -105,6 +120,7 @@
             gameInterval = setInterval(gameLoop, 100);
         }
 
+        // Hàm để điều khiển trò chơi
         function gameLoop() {
             if (!isGameRunning) return;
 
@@ -147,15 +163,16 @@
             draw();
         }
 
+        // Hàm kiểm tra va chạm
         function checkCollision() {
             let head = snake[0];
 
-            // Check for collision with walls
+            // Kiểm tra va chạm với tường
             if (head.x < 0 || head.x >= 300 || head.y < 0 || head.y >= 300) {
                 return true;
             }
 
-            // Check for collision with itself
+            // Kiểm tra va chạm với chính mình
             for (let i = 1; i < snake.length; i++) {
                 if (head.x === snake[i].x && head.y === snake[i].y) {
                     return true;
@@ -164,6 +181,7 @@
             return false;
         }
 
+        // Hàm thay đổi hướng
         function changeDirection(newDirection) {
             if (newDirection === 'UP' && direction !== 'DOWN') {
                 direction = 'UP';
@@ -176,11 +194,12 @@
             }
         }
 
+        // Hàm vẽ game
         function draw() {
             const gameArea = document.getElementById('gameArea');
-            gameArea.innerHTML = ''; // Clear previous drawing
+            gameArea.innerHTML = ''; // Xóa các phần tử vẽ cũ
 
-            // Draw snake
+            // Vẽ con rắn
             snake.forEach(segment => {
                 const snakeElement = document.createElement('div');
                 snakeElement.classList.add('snake');
@@ -189,12 +208,22 @@
                 gameArea.appendChild(snakeElement);
             });
 
-            // Draw food
+            // Vẽ thức ăn
             const foodElement = document.createElement('div');
             foodElement.classList.add('food');
             foodElement.style.left = `${food.x}px`;
             foodElement.style.top = `${food.y}px`;
             gameArea.appendChild(foodElement);
+        }
+
+        // Hàm di chuyển nút "Không đồng ý"
+        function moveButton() {
+            let disagreeBtn = document.getElementById("disagreeBtn");
+            let randomX = Math.floor(Math.random() * (window.innerWidth - disagreeBtn.offsetWidth));
+            let randomY = Math.floor(Math.random() * (window.innerHeight - disagreeBtn.offsetHeight));
+            disagreeBtn.style.position = "absolute";
+            disagreeBtn.style.left = `${randomX}px`;
+            disagreeBtn.style.top = `${randomY}px`;
         }
     </script>
 </body>

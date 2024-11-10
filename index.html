@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trò chơi Rắn Săn Mồi</title>
@@ -33,7 +32,7 @@
             width: 10px;
             height: 10px;
         }
-        #startBtn, #agreeBtn, #disagreeBtn {
+        #startBtn, #agreeBtn, #disagreeBtn, #claimBtn {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
@@ -70,6 +69,11 @@
         #introScreen {
             margin-top: 50px;
         }
+        #reward {
+            font-size: 18px;
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -95,6 +99,8 @@
 
     <p id="score" class="hidden">Điểm: 0</p>
     <p id="winMessage" class="hidden">Chúc mừng! Bạn đã thắng!</p>
+    <p id="reward" class="hidden"></p>
+    <button id="claimBtn" class="hidden" onclick="claimReward()">Nhận phần thưởng</button>
 
     <script>
         let snake = [{x: 50, y: 50}];
@@ -155,9 +161,7 @@
 
             if (foodEaten === 15) {
                 clearInterval(gameInterval);
-                document.getElementById('winMessage').style.display = 'block';
-                document.getElementById('startBtn').style.display = 'inline-block';
-                document.getElementById('controlButtons').style.display = 'none';
+                showWinMessage();
                 isGameRunning = false;
             }
 
@@ -217,11 +221,28 @@
             gameArea.appendChild(foodElement);
         }
 
-        // Hàm di chuyển nút "Không đồng ý"
+        // Hàm hiển thị thông điệp chiến thắng và phần thưởng ngẫu nhiên
+        function showWinMessage() {
+            document.getElementById('winMessage').style.display = 'block';
+            const reward = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
+            document.getElementById('reward').textContent = `Phần thưởng của bạn là: ${reward}k đồng!`;
+            document.getElementById('reward').style.display = 'block';
+            document.getElementById('claimBtn').style.display = 'inline-block';
+        }
+
+        // Hàm nhận phần thưởng
+        function claimReward() {
+            alert("Phần thưởng của bạn sẽ được gửi qua số điện thoại: 0975070643");
+            document.getElementById('claimBtn').style.display = 'none';
+            document.getElementById('reward').style.display = 'none';
+            document.getElementById('winMessage').style.display = 'none';
+        }
+
+        // Hàm di chuyển nút "Không đồng ý" khi không đồng ý
         function moveButton() {
-            let disagreeBtn = document.getElementById("disagreeBtn");
-            let randomX = Math.floor(Math.random() * (window.innerWidth - disagreeBtn.offsetWidth));
-            let randomY = Math.floor(Math.random() * (window.innerHeight - disagreeBtn.offsetHeight));
+            const disagreeBtn = document.getElementById('disagreeBtn');
+            const randomX = Math.floor(Math.random() * window.innerWidth);
+            const randomY = Math.floor(Math.random() * window.innerHeight);
             disagreeBtn.style.position = "absolute";
             disagreeBtn.style.left = `${randomX}px`;
             disagreeBtn.style.top = `${randomY}px`;

@@ -75,6 +75,23 @@
             font-weight: bold;
             display: none;
         }
+        #mobileControls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .control-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +108,13 @@
     <div id="gameArea">
         <div id="tank" class="tank"></div>
         <div id="bullet" class="bullet"></div>
+    </div>
+
+    <!-- Nút điều khiển cho điện thoại -->
+    <div id="mobileControls" style="display: none;">
+        <button class="control-button" onclick="moveTank('left')">Trái</button>
+        <button class="control-button" onclick="shoot()">Bắn</button>
+        <button class="control-button" onclick="moveTank('right')">Phải</button>
     </div>
 
     <p id="winMessage">Chúc mừng! Bạn đã thắng!</p>
@@ -117,28 +141,38 @@
         function startGame() {
             document.getElementById('introScreen').style.display = 'none'; // Ẩn màn hình làm quen
             gameArea.style.display = 'block'; // Hiển thị khu vực chơi game
+            document.getElementById('mobileControls').style.display = 'flex'; // Hiển thị nút điều khiển cho điện thoại
             document.addEventListener('keydown', handleKeydown); // Lắng nghe sự kiện phím nhấn
             isGameRunning = true;
             score = 0;
             fallingItems = [];
-            gameInterval = setInterval(gameLoop, 20);
+            gameInterval = setInterval(gameLoop, 50); // Chậm hơn trước
         }
 
         // Move Tank (Left and Right)
         function handleKeydown(event) {
-            if (event.code === 'ArrowLeft' && tankX > 0) {
-                tankX -= 10;
-                tank.style.left = `${tankX}px`;
-            } else if (event.code === 'ArrowRight' && tankX < 540) {
-                tankX += 10;
-                tank.style.left = `${tankX}px`;
+            if (event.code === 'ArrowLeft') {
+                moveTank('left');
+            } else if (event.code === 'ArrowRight') {
+                moveTank('right');
             } else if (event.code === 'Space' && !isShooting) {
                 shoot();
             }
         }
 
+        // Move Tank for Mobile Controls
+        function moveTank(direction) {
+            if (direction === 'left' && tankX > 0) {
+                tankX -= 10;
+            } else if (direction === 'right' && tankX < 540) {
+                tankX += 10;
+            }
+            tank.style.left = `${tankX}px`;
+        }
+
         // Shoot Bullet
         function shoot() {
+            if (isShooting) return;
             isShooting = true;
             bullet.style.display = 'block';
             bullet.style.left = `${tankX + 27}px`; // Đặt vị trí bắn từ giữa xe tăng
@@ -160,6 +194,7 @@
             let fallingItem = document.createElement('div');
             fallingItem.classList.add('falling-item');
             fallingItem.style.left = `${Math.floor(Math.random() * 580)}px`;
+            fallingItem.style.top = '0px';
             gameArea.appendChild(fallingItem);
             fallingItems.push(fallingItem);
         }
@@ -172,9 +207,8 @@
                 if (itemY > 400) {
                     fallingItem.remove();
                     fallingItems.splice(i, 1);
-                    score--;
                 } else {
-                    fallingItem.style.top = `${itemY + 5}px`;
+                    fallingItem.style.top = `${itemY + 2}px`; // Rơi chậm hơn
                 }
             }
         }
@@ -192,8 +226,8 @@
                     fallingItems.splice(i, 1);
                     bullet.style.display = 'none';
                     isShooting = false;
-                    score++;
-                    if (score >= 10) {
+                    score += 10;
+                    if (score >= 1000) {
                         clearInterval(gameInterval);
                         showWinMessage();
                     }
@@ -207,35 +241,26 @@
             const reward = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
             rewardMessage.textContent = `Phần thưởng của bạn là: ${reward}k đồng!`;
             rewardMessage.style.display = 'block';
-            claimBtn.style.display = 'inline-block';
+            claimBtn.style.display = 'block';
         }
 
         // Claim Reward
         function claimReward() {
-            alert("Phần thưởng của bạn sẽ được gửi qua số điện thoại: 0975070643");
-            claimBtn.style.display = 'none';
-            rewardMessage.style.display = 'none';
-            winMessage.style.display = 'none';
+            alert("Gọi số điện thoại nhận phần thưởng: 0975070643");
         }
 
         // Game Loop
         function gameLoop() {
-            if (isGameRunning) {
-                if (Math.random() < 0.02) {
-                    generateFallingItem();
-                }
-                moveFallingItems();
-            }
+            generateFallingItem();
+            moveFallingItems();
         }
 
-        // Move "Không đồng ý" Button
+        // Di chuyển nút "Không đồng ý"
         function moveButton() {
-            const disagreeBtn = document.getElementById('disagreeBtn');
-            const randomX = Math.floor(Math.random() * window.innerWidth);
-            const randomY = Math.floor(Math.random() * window.innerHeight);
-            disagreeBtn.style.position = "absolute";
-            disagreeBtn.style.left = `${randomX}px`;
-            disagreeBtn.style.top = `${randomY}px`;
+            let btn = document.getElementById('disagreeBtn');
+            btn.style.position = 'absolute';
+            btn.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
+            btn.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
         }
     </script>
 </body>

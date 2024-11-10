@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App</title>
+    <title>Quiz Generator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="quiz-container">
-        <h2>Quiz Application</h2>
-        <div id="question-container"></div>
-        <button id="next-button" onclick="loadNextQuestion()">Next</button>
-        <p id="score"></p>
+    <div id="upload-container">
+        <h2>Tải lên file câu hỏi để tạo đề trắc nghiệm</h2>
+        <input type="file" id="file-upload" accept=".docx, .pdf">
+        <button onclick="uploadFile()">Tạo Đề</button>
+        <div id="quiz-container"></div>
     </div>
     <script src="script.js"></script>
 </body>

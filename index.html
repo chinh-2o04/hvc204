@@ -72,6 +72,9 @@
         function start() {
             const name = document.getElementById("nameInput").value;
             if (name) {
+                // Lưu tên người dùng vào localStorage
+                localStorage.setItem("userName", name);
+
                 document.querySelector("h1").textContent = `Chào ${name}!`;
                 document.getElementById("nameInput").style.display = "none";
                 document.querySelector("button").style.display = "none";
@@ -108,6 +111,19 @@
             noButton.style.left = `${x}px`;
             noButton.style.top = `${y}px`;
         }
+
+        // Kiểm tra xem người dùng đã nhập tên trước đó hay chưa
+        window.onload = function() {
+            const storedName = localStorage.getItem("userName");
+            if (storedName) {
+                document.querySelector("h1").textContent = `Chào lại ${storedName}!`;
+                document.getElementById("nameInput").style.display = "none";
+                document.querySelector("button").style.display = "none";
+                document.getElementById("questionContainer").style.display = "block";
+                showQuestion();
+            }
+        };
     </script>
 </body>
 </html>
+

@@ -28,7 +28,6 @@ function start() {
         alert("Hãy nhập tên của bạn nhé!");
     }
 }
-
 function showQuestion() {
     const questionElement = document.getElementById("question");
     const answerButtons = document.getElementById("answerButtons");

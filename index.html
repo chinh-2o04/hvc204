@@ -127,7 +127,18 @@
                 document.getElementById("gameContainer").style.display = "none"; // Ẩn trò chơi
             } else {
                 document.getElementById("gameMessage").textContent = "Sai rồi, thử lại nhé!";
+                resetGame(); // Gọi hàm reset trò chơi khi người dùng sai
             }
+        }
+
+        function resetGame() {
+            setTimeout(function() {
+                // Ẩn các phần liên quan đến kết quả sai
+                document.getElementById("gameMessage").textContent = "Nhớ chuỗi ký tự này!";
+                document.getElementById("guessInput").value = ""; // Xóa ô nhập
+                generateSequence(); // Tạo lại chuỗi ngẫu nhiên
+                setTimeout(hideSequence, 3000); // Ẩn chuỗi sau 3 giây
+            }, 1500); // Đợi 1.5 giây trước khi reset
         }
 
         function showQuestion() {

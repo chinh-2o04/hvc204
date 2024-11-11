@@ -219,28 +219,4 @@
             const reward = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
             rewardMessage.textContent = `Phần thưởng của bạn là: ${reward}k đồng!`;
             rewardMessage.style.display = 'block';
-            claimBtn.style.display = 'block';
-        }
-
-        // Claim Reward
-        function claimReward() {
-            alert("Gọi số điện thoại nhận phần thưởng: 0975070643");
-        }
-
-        // Game Loop
-        function gameLoop() {
-            generateFallingItem();
-            moveFallingItems();
-            checkCollision();
-        }
-
-        // Di chuyển nút "Không đồng ý"
-        function moveButton() {
-            let btn = document.getElementById('disagreeBtn');
-            btn.style.position = 'absolute';
-            btn.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
-            btn.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
-        }
-    </script>
-</body>
-</html>
+            claimBtn.style.display = 'block

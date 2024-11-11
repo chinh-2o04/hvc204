@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
-            -webkit-touch-callout: none; /* Chặn giữ nút để không bị bôi đen */
+            -webkit-touch-callout: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -46,11 +46,11 @@
             height: 20px;
             border-radius: 50%;
         }
-        .coin.gold { background-color: yellow; } /* 1 điểm */
-        .coin.red { background-color: red; } /* 2 điểm */
-        .coin.pink { background-color: pink; } /* 3 điểm */
-        .coin.diamond { background-color: cyan; } /* 10 điểm */
-        .coin.bomb { background-color: black; width: 30px; height: 30px; } /* Bomb */
+        .coin.gold { background-color: yellow; }
+        .coin.red { background-color: red; }
+        .coin.pink { background-color: pink; }
+        .coin.diamond { background-color: cyan; }
+        .coin.bomb { background-color: black; width: 30px; height: 30px; }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -108,9 +108,9 @@
     <h1>Nhặt đồng xu</h1>
 
     <div id="introScreen">
-        <p>Làm quen với tớ nhé?</p>
-        <button id="agreeBtn" onclick="startGame()">Đồng ý</button>
-        <button id="disagreeBtn" onclick="moveButton()">Không đồng ý</button>
+        <p>Nhập tên của bạn để bắt đầu:</p>
+        <input type="text" id="playerName" placeholder="Nhập tên của bạn">
+        <button id="startBtn" onclick="startGame()">Bắt đầu</button>
     </div>
 
     <div id="gameArea">
@@ -146,8 +146,20 @@
         let timeRemaining = 31;
         let moveInterval;
         let gameInterval, timerInterval;
+        let playerName = localStorage.getItem('playerName') || 'Chưa có tên';
+
+        // Kiểm tra nếu đã lưu tên
+        if (playerName !== 'Chưa có tên') {
+            document.getElementById('introScreen').innerHTML = `<p>Chào mừng lại, ${playerName}!</p><button onclick="startGame()">Chơi ngay</button>`;
+        }
 
         function startGame() {
+            // Lưu tên người chơi vào localStorage
+            let nameInput = document.getElementById('playerName');
+            playerName = nameInput.value || playerName; // Nếu không có tên mới, dùng tên cũ
+            localStorage.setItem('playerName', playerName);
+
+            // Ẩn màn hình nhập tên và bắt đầu trò chơi
             document.getElementById('introScreen').style.display = 'none';
             gameArea.style.display = 'block';
             document.getElementById('mobileControls').style.display = 'flex';
@@ -227,24 +239,22 @@
 
                 if (fallingItem.classList.contains('pink')) speed = 8;
                 else if (fallingItem.classList.contains('diamond')) speed = 12;
-                else if (fallingItem.classList.contains('bomb')) speed = 6;
+                else if (fallingItem.classList.contains('bomb')) speed = 4;
 
-                fallingItem.style.top = parseInt(fallingItem.style.top) + speed + 'px';
+                fallingItem.style.top = `${parseInt(fallingItem.style.top) + speed}px`;
 
-                if (parseInt(fallingItem.style.top) > 380) {
-                    if (isCollision(fallingItem)) {
+                if (isCollision(fallingItem)) {
+                    if (fallingItem.classList.contains('coin')) {
                         score += parseInt(fallingItem.dataset.points);
-                        if (fallingItem.dataset.points === -5) {
-                            // Bom trừ 5 điểm
-                            score -= 5;
-                        }
-                        fallingItem.remove();
+                    } else if (fallingItem.classList.contains('bomb')) {
+                        score += parseInt(fallingItem.dataset.points);
                     }
-                    else if (parseInt(fallingItem.style.top) > 400) {
-                        fallingItem.remove();
-                    }
+                    fallingItem.remove();
+                } else if (parseInt(fallingItem.style.top) > 400) {
+                    fallingItem.remove();
                 }
             }
+
             scoreDisplay.textContent = score;
 
             if (score >= 100) {
@@ -255,34 +265,20 @@
         function isCollision(item) {
             let basketRect = basket.getBoundingClientRect();
             let itemRect = item.getBoundingClientRect();
-
-            return itemRect.top + itemRect.height > basketRect.top && 
-                   itemRect.left + itemRect.width > basketRect.left && 
+            return itemRect.top + itemRect.height > basketRect.top &&
+                   itemRect.left + itemRect.width > basketRect.left &&
                    itemRect.left < basketRect.left + basketRect.width;
-        }
-
-        function gameLoop() {
-            moveFallingItems();
-            if (Math.random() < 0.1) generateFallingItem();
         }
 
         function showWinMessage() {
             winMessage.style.display = 'block';
-            rewardMessage.textContent = `Bạn đã thu thập được ${score} điểm!`;
+            rewardMessage.textContent = `Chúc mừng ${playerName}! Bạn đã thu thập được ${score} điểm!`;
             rewardMessage.style.display = 'block';
         }
 
         function claimReward() {
             let reward = score * 1000;
-            alert(`Bạn nhận ${reward} VND.`);
-        }
-
-        function moveButton() {
-            let randomX = Math.floor(Math.random() * (window.innerWidth - 100));
-            let randomY = Math.floor(Math.random() * (window.innerHeight - 100));
-            document.getElementById('disagreeBtn').style.position = 'absolute';
-            document.getElementById('disagreeBtn').style.left = randomX + 'px';
-            document.getElementById('disagreeBtn').style.top = randomY + 'px';
+            alert(`Bạn nhận ${reward} VND. Liên hệ: 0975070643.`);
         }
     </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò chơi Xe Tăng</title>
+    <title>Nhặt đồng xu</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,7 +88,7 @@
     </style>
 </head>
 <body>
-    <h1>Trò chơi Xe Tăng</h1>
+    <h1>Nhặt đồng xu</h1>
     
     <!-- Màn hình làm quen -->
     <div id="introScreen">
@@ -104,8 +104,8 @@
 
     <!-- Nút điều khiển cho điện thoại -->
     <div id="mobileControls" style="display: none;">
-        <button class="control-button" onclick="moveTank('left')">Trái</button>
-        <button class="control-button" onclick="moveTank('right')">Phải</button>
+        <button class="control-button" onmousedown="startMove('left')" onmouseup="stopMove()">Trái</button>
+        <button class="control-button" onmousedown="startMove('right')" onmouseup="stopMove()">Phải</button>
     </div>
 
     <p id="winMessage">Chúc mừng! Bạn đã thắng!</p>
@@ -124,6 +124,7 @@
         let fallingItems = [];
         let score = 0;
         let gameInterval;
+        let moveInterval;
 
         // Start Game
         function startGame() {
@@ -131,6 +132,7 @@
             gameArea.style.display = 'block'; // Hiển thị khu vực chơi game
             document.getElementById('mobileControls').style.display = 'flex'; // Hiển thị nút điều khiển cho điện thoại
             document.addEventListener('keydown', handleKeydown); // Lắng nghe sự kiện phím nhấn
+            document.addEventListener('keyup', stopMove); // Dừng khi thả phím
             isGameRunning = true;
             score = 0;
             fallingItems = [];
@@ -140,13 +142,24 @@
         // Move Tank (Left and Right)
         function handleKeydown(event) {
             if (event.code === 'ArrowLeft') {
-                moveTank('left');
+                startMove('left');
             } else if (event.code === 'ArrowRight') {
-                moveTank('right');
+                startMove('right');
             }
         }
 
-        // Move Tank for Mobile Controls
+        // Start Moving the Tank
+        function startMove(direction) {
+            stopMove();
+            moveInterval = setInterval(() => moveTank(direction), 50);
+        }
+
+        // Stop Moving the Tank
+        function stopMove() {
+            clearInterval(moveInterval);
+        }
+
+        // Move Tank based on Direction
         function moveTank(direction) {
             if (direction === 'left' && tankX > 0) {
                 tankX -= 10;

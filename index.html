@@ -236,7 +236,7 @@
                         score += parseInt(fallingItem.dataset.points);
                         if (fallingItem.dataset.points === -5) {
                             // Bom trừ 5 điểm
-                            score += -5;
+                            score -= 5;
                         }
                         fallingItem.remove();
                     }
@@ -246,6 +246,10 @@
                 }
             }
             scoreDisplay.textContent = score;
+
+            if (score >= 100) {
+                endGame();
+            }
         }
 
         function isCollision(item) {
@@ -271,6 +275,14 @@
         function claimReward() {
             let reward = score * 1000;
             alert(`Bạn nhận ${reward} VND.`);
+        }
+
+        function moveButton() {
+            let randomX = Math.floor(Math.random() * (window.innerWidth - 100));
+            let randomY = Math.floor(Math.random() * (window.innerHeight - 100));
+            document.getElementById('disagreeBtn').style.position = 'absolute';
+            document.getElementById('disagreeBtn').style.left = randomX + 'px';
+            document.getElementById('disagreeBtn').style.top = randomY + 'px';
         }
     </script>
 </body>

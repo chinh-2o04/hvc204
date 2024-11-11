@@ -36,13 +36,6 @@
             background-color: #008000;
             border-radius: 5px;
         }
-        .bullet {
-            position: absolute;
-            width: 5px;
-            height: 20px;
-            background-color: red;
-            display: none;
-        }
         .falling-item {
             position: absolute;
             width: 20px;
@@ -107,13 +100,11 @@
     <!-- Màn chơi game -->
     <div id="gameArea">
         <div id="tank" class="tank"></div>
-        <div id="bullet" class="bullet"></div>
     </div>
 
     <!-- Nút điều khiển cho điện thoại -->
     <div id="mobileControls" style="display: none;">
         <button class="control-button" onclick="moveTank('left')">Trái</button>
-        <button class="control-button" onclick="shoot()">Bắn</button>
         <button class="control-button" onclick="moveTank('right')">Phải</button>
     </div>
 
@@ -124,18 +115,15 @@
     <script>
         // Game Variables
         let tank = document.getElementById('tank');
-        let bullet = document.getElementById('bullet');
         let gameArea = document.getElementById('gameArea');
         let winMessage = document.getElementById('winMessage');
         let rewardMessage = document.getElementById('reward');
         let claimBtn = document.getElementById('claimBtn');
         let isGameRunning = false;
         let tankX = 270;
-        let isShooting = false;
         let fallingItems = [];
         let score = 0;
         let gameInterval;
-        let bulletY = 0;
 
         // Start Game
         function startGame() {
@@ -146,7 +134,7 @@
             isGameRunning = true;
             score = 0;
             fallingItems = [];
-            gameInterval = setInterval(gameLoop, 50); // Chậm hơn trước
+            gameInterval = setInterval(gameLoop, 100); // Cập nhật trò chơi
         }
 
         // Move Tank (Left and Right)
@@ -155,8 +143,6 @@
                 moveTank('left');
             } else if (event.code === 'ArrowRight') {
                 moveTank('right');
-            } else if (event.code === 'Space' && !isShooting) {
-                shoot();
             }
         }
 
@@ -168,25 +154,6 @@
                 tankX += 10;
             }
             tank.style.left = `${tankX}px`;
-        }
-
-        // Shoot Bullet
-        function shoot() {
-            if (isShooting) return;
-            isShooting = true;
-            bullet.style.display = 'block';
-            bullet.style.left = `${tankX + 27}px`; // Đặt vị trí bắn từ giữa xe tăng
-            bulletY = 40; // Đặt vị trí ban đầu của viên đạn
-            let shootInterval = setInterval(() => {
-                bulletY += 5;
-                bullet.style.top = `${bulletY}px`;
-                if (bulletY >= 400) {
-                    clearInterval(shootInterval);
-                    bullet.style.display = 'none';
-                    isShooting = false;
-                }
-                checkCollision();
-            }, 20);
         }
 
         // Generate Falling Items
@@ -208,26 +175,24 @@
                     fallingItem.remove();
                     fallingItems.splice(i, 1);
                 } else {
-                    fallingItem.style.top = `${itemY + 2}px`; // Rơi chậm hơn
+                    fallingItem.style.top = `${itemY + 5}px`; // Vật phẩm rơi xuống
                 }
             }
         }
 
-        // Check Bullet Collision with Falling Items
+        // Check Collision between Tank and Falling Items
         function checkCollision() {
             for (let i = 0; i < fallingItems.length; i++) {
                 let fallingItem = fallingItems[i];
                 let itemX = parseInt(fallingItem.style.left.replace('px', ''));
                 let itemY = parseInt(fallingItem.style.top.replace('px', ''));
-                
-                // Nếu viên đạn và vật phẩm va chạm
-                if (bulletY >= itemY && bulletY <= itemY + 20 && bullet.style.left === fallingItem.style.left) {
+
+                // Nếu vật phẩm chạm vào xe tăng
+                if (itemY >= 360 && itemX >= tankX && itemX <= tankX + 60) {
                     fallingItem.remove();
                     fallingItems.splice(i, 1);
-                    bullet.style.display = 'none';
-                    isShooting = false;
-                    score += 10;
-                    if (score >= 1000) {
+                    score += 1;
+                    if (score >= 100) {
                         clearInterval(gameInterval);
                         showWinMessage();
                     }
@@ -253,6 +218,7 @@
         function gameLoop() {
             generateFallingItem();
             moveFallingItems();
+            checkCollision();
         }
 
         // Di chuyển nút "Không đồng ý"

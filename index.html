@@ -11,6 +11,11 @@
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
+            -webkit-touch-callout: none; /* Chặn giữ nút để không bị bôi đen */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         #introScreen {
             margin-top: 50px;
@@ -139,7 +144,6 @@
             document.getElementById('introScreen').style.display = 'none';
             gameArea.style.display = 'block';
             document.getElementById('mobileControls').style.display = 'flex';
-            isGameRunning = true;
             score = 0;
             scoreDisplay.textContent = score;
             timeRemaining = 31;
@@ -186,16 +190,16 @@
             let fallingItem = document.createElement('div');
             let randomType = Math.random();
             if (randomType < 0.7) {
-                fallingItem.classList.add('coin', 'gold'); // 1 điểm
+                fallingItem.classList.add('coin', 'gold');
                 fallingItem.dataset.points = 1;
             } else if (randomType < 0.9) {
-                fallingItem.classList.add('coin', 'red'); // 2 điểm
+                fallingItem.classList.add('coin', 'red');
                 fallingItem.dataset.points = 2;
             } else if (randomType < 0.98) {
-                fallingItem.classList.add('coin', 'pink'); // 3 điểm
+                fallingItem.classList.add('coin', 'pink');
                 fallingItem.dataset.points = 3;
             } else {
-                fallingItem.classList.add('coin', 'diamond'); // 10 điểm
+                fallingItem.classList.add('coin', 'diamond');
                 fallingItem.dataset.points = 10;
             }
             fallingItem.style.left = `${Math.floor(Math.random() * 580)}px`;
@@ -234,17 +238,16 @@
                     scoreDisplay.textContent = score;
                     item.remove();
                     fallingItems.splice(i, 1);
-                    if (score >= 100) {
-                        endGame();
-                    }
+                    if (score >= 100) endGame();
                 }
             }
         }
 
         function showWinMessage() {
+            let cashReward = (Math.floor(score / 10) * 1000).toLocaleString();
             winMessage.style.display = 'block';
             rewardMessage.style.display = 'block';
-            rewardMessage.textContent = `Bạn đã thu thập được ${Math.floor(score / 10) * 10}k VND!`;
+            rewardMessage.textContent = `Bạn đã thu thập được ${cashReward} VND!`;
             claimBtn.style.display = 'inline';
         }
 
@@ -260,9 +263,7 @@
         }
 
         function gameLoop() {
-            if (Math.random() < 0.1) {
-                generateFallingItem();
-            }
+            if (Math.random() < 0.1) generateFallingItem();
             moveFallingItems();
             checkCollision();
         }

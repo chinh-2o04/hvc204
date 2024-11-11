@@ -25,7 +25,6 @@
             display: none;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background-color: #c0c0c0;
         }
         .basket {
             position: absolute;
@@ -52,9 +51,6 @@
             color: white;
             border: none;
             border-radius: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
         }
         #winMessage {
             font-size: 20px;
@@ -101,6 +97,10 @@
             border-bottom: 15px solid transparent;
             border-left: 30px solid white;
         }
+        #scoreBoard {
+            font-size: 18px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -113,10 +113,13 @@
         <button id="disagreeBtn" onclick="moveButton()">Không đồng ý</button>
     </div>
 
-    <!-- Màn chơi game -->
+    <!-- Khu vực chơi game -->
     <div id="gameArea">
         <div id="basket" class="basket"></div>
     </div>
+
+    <!-- Bảng điểm -->
+    <div id="scoreBoard">Đồng xu đã nhặt: <span id="score">0</span></div>
 
     <!-- Nút điều khiển cho điện thoại -->
     <div id="mobileControls" style="display: none;">
@@ -139,6 +142,7 @@
         let winMessage = document.getElementById('winMessage');
         let rewardMessage = document.getElementById('reward');
         let claimBtn = document.getElementById('claimBtn');
+        let scoreDisplay = document.getElementById('score');
         let isGameRunning = false;
         let basketX = 270;
         let fallingItems = [];
@@ -155,6 +159,7 @@
             document.addEventListener('keyup', stopMove); // Dừng khi thả phím
             isGameRunning = true;
             score = 0;
+            scoreDisplay.textContent = score; // Cập nhật điểm số ban đầu
             fallingItems = [];
             gameInterval = setInterval(gameLoop, 100); // Cập nhật trò chơi
         }
@@ -225,6 +230,7 @@
                     fallingItem.remove();
                     fallingItems.splice(i, 1);
                     score += 1;
+                    scoreDisplay.textContent = score; // Cập nhật bảng điểm
                     if (score >= 100) {
                         clearInterval(gameInterval);
                         showWinMessage();
@@ -239,27 +245,29 @@
             const reward = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
             rewardMessage.textContent = `Phần thưởng của bạn là: ${reward}k đồng!`;
             rewardMessage.style.display = 'block';
-            claimBtn.style.display = 'block';
+            claimBtn.style.display = 'inline';
         }
 
         // Claim Reward
         function claimReward() {
-            alert("Gọi số điện thoại nhận phần thưởng: 0975070643");
+            alert("Số điện thoại liên hệ: 0975070643");
         }
 
-        // Game Loop
-        function gameLoop() {
-            generateFallingItem();
-            moveFallingItems();
-            checkCollision();
-        }
-
-        // Di chuyển nút "Không đồng ý"
+        // Move "Không đồng ý" Button
         function moveButton() {
             let btn = document.getElementById('disagreeBtn');
             btn.style.position = 'absolute';
             btn.style.left = Math.random() * (window.innerWidth - btn.offsetWidth) + 'px';
             btn.style.top = Math.random() * (window.innerHeight - btn.offsetHeight) + 'px';
+        }
+
+        // Main Game Loop
+        function gameLoop() {
+            if (Math.random() < 0.1) {
+                generateFallingItem();
+            }
+            moveFallingItems();
+            checkCollision();
         }
     </script>
 </body>

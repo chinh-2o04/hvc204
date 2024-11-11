@@ -5,7 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nhặt đồng xu</title>
     <style>
-        /* CSS giữ nguyên */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            -webkit-touch-callout: none; /* Chặn giữ nút để không bị bôi đen */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        #introScreen {
+            margin-top: 50px;
+        }
+        #gameArea {
+            width: 600px;
+            height: 400px;
+            background-color: #f0f0f0;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            display: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .basket {
+            position: absolute;
+            bottom: 20px;
+            left: 270px;
+            width: 60px;
+            height: 40px;
+            background-color: #FF5733;
+            border-radius: 5px;
+        }
+        .coin {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        .coin.gold { background-color: yellow; } /* 1 điểm */
+        .coin.red { background-color: red; } /* 2 điểm */
+        .coin.pink { background-color: pink; } /* 3 điểm */
+        .coin.diamond { background-color: cyan; } /* 10 điểm */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #winMessage, #reward, #timer {
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+        #mobileControls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .control-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+        .triangle-left, .triangle-right {
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+        }
+        .triangle-left { border-right: 30px solid white; }
+        .triangle-right { border-left: 30px solid white; }
+        #scoreBoard { font-size: 18px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -13,7 +101,6 @@
 
     <div id="introScreen">
         <p>Làm quen với tớ nhé?</p>
-        <input type="text" id="playerName" placeholder="Nhập tên của bạn" />
         <button id="agreeBtn" onclick="startGame()">Đồng ý</button>
         <button id="disagreeBtn" onclick="moveButton()">Không đồng ý</button>
     </div>
@@ -52,26 +139,16 @@
         let timeRemaining = 31;
         let moveInterval;
         let gameInterval, timerInterval;
-        let playerName = "";
 
         function startGame() {
-            // Lấy tên người chơi từ ô nhập
-            playerName = document.getElementById('playerName').value || "Người chơi";
             document.getElementById('introScreen').style.display = 'none';
             gameArea.style.display = 'block';
             document.getElementById('mobileControls').style.display = 'flex';
-
-            // Reset trạng thái trò chơi
             score = 0;
             scoreDisplay.textContent = score;
             timeRemaining = 31;
             timerDisplay.textContent = timeRemaining;
             fallingItems = [];
-            winMessage.style.display = 'none';
-            rewardMessage.style.display = 'none';
-            claimBtn.style.display = 'none';
-
-            // Bắt đầu trò chơi
             gameInterval = setInterval(gameLoop, 100);
             timerInterval = setInterval(countdown, 1000);
         }
@@ -91,11 +168,86 @@
             showWinMessage();
         }
 
+        function startMove(direction) {
+            stopMove();
+            moveInterval = setInterval(() => moveBasket(direction), 50);
+        }
+
+        function stopMove() {
+            clearInterval(moveInterval);
+        }
+
+        function moveBasket(direction) {
+            if (direction === 'left' && basketX > 0) {
+                basketX -= 10;
+            } else if (direction === 'right' && basketX < 540) {
+                basketX += 10;
+            }
+            basket.style.left = `${basketX}px`;
+        }
+
+        function generateFallingItem() {
+            let fallingItem = document.createElement('div');
+            let randomType = Math.random();
+            if (randomType < 0.7) {
+                fallingItem.classList.add('coin', 'gold');
+                fallingItem.dataset.points = 1;
+            } else if (randomType < 0.9) {
+                fallingItem.classList.add('coin', 'red');
+                fallingItem.dataset.points = 2;
+            } else if (randomType < 0.98) {
+                fallingItem.classList.add('coin', 'pink');
+                fallingItem.dataset.points = 3;
+            } else {
+                fallingItem.classList.add('coin', 'diamond');
+                fallingItem.dataset.points = 10;
+            }
+            fallingItem.style.left = `${Math.floor(Math.random() * 580)}px`;
+            fallingItem.style.top = '0px';
+            gameArea.appendChild(fallingItem);
+            fallingItems.push(fallingItem);
+        }
+
+        function moveFallingItems() {
+            for (let i = 0; i < fallingItems.length; i++) {
+                let fallingItem = fallingItems[i];
+                let speed = 5;
+                if (fallingItem.classList.contains('pink')) speed = 8;
+                else if (fallingItem.classList.contains('diamond')) speed = 12;
+                
+                let itemY = parseInt(fallingItem.style.top.replace('px', '') || 0);
+                if (itemY > 400) {
+                    fallingItem.remove();
+                    fallingItems.splice(i, 1);
+                } else {
+                    fallingItem.style.top = `${itemY + speed}px`;
+                }
+            }
+        }
+
+        function checkCollision() {
+            for (let i = 0; i < fallingItems.length; i++) {
+                let item = fallingItems[i];
+                let itemRect = item.getBoundingClientRect();
+                let basketRect = basket.getBoundingClientRect();
+
+                if (itemRect.bottom > basketRect.top &&
+                    itemRect.right > basketRect.left &&
+                    itemRect.left < basketRect.right) {
+                    score += parseInt(item.dataset.points);
+                    scoreDisplay.textContent = score;
+                    item.remove();
+                    fallingItems.splice(i, 1);
+                    if (score >= 100) endGame();
+                }
+            }
+        }
+
         function showWinMessage() {
             let cashReward = (Math.floor(score / 10) * 1000).toLocaleString();
             winMessage.style.display = 'block';
             rewardMessage.style.display = 'block';
-            rewardMessage.textContent = `${playerName}, bạn đã thu thập được ${cashReward} VND!`;
+            rewardMessage.textContent = `Bạn đã thu thập được ${cashReward} VND!`;
             claimBtn.style.display = 'inline';
         }
 
@@ -115,8 +267,6 @@
             moveFallingItems();
             checkCollision();
         }
-
-        /* Các hàm generateFallingItem, moveFallingItems, checkCollision giữ nguyên */
     </script>
 </body>
 </html>

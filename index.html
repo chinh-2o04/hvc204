@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,13 +27,13 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             background-color: #c0c0c0;
         }
-        .tank {
+        .basket {
             position: absolute;
             bottom: 20px;
             left: 270px;
             width: 60px;
             height: 40px;
-            background-color: #008000;
+            background-color: #FF5733; /* Màu giỏ hàng */
             border-radius: 5px;
         }
         .falling-item {
@@ -42,7 +41,7 @@
             width: 20px;
             height: 20px;
             background-color: yellow;
-            border-radius: 5px;
+            border-radius: 50%;
         }
         button {
             padding: 10px 20px;
@@ -84,7 +83,23 @@
             font-size: 16px;
             width: 60px;
             height: 60px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .triangle-left {
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 30px solid white;
+        }
+        .triangle-right {
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 30px solid white;
         }
     </style>
 </head>
@@ -100,13 +115,17 @@
 
     <!-- Màn chơi game -->
     <div id="gameArea">
-        <div id="tank" class="tank"></div>
+        <div id="basket" class="basket"></div>
     </div>
 
     <!-- Nút điều khiển cho điện thoại -->
     <div id="mobileControls" style="display: none;">
-        <button class="control-button" onmousedown="startMove('left')" onmouseup="stopMove()">Trái</button>
-        <button class="control-button" onmousedown="startMove('right')" onmouseup="stopMove()">Phải</button>
+        <button class="control-button" onmousedown="startMove('left')" onmouseup="stopMove()">
+            <div class="triangle-left"></div>
+        </button>
+        <button class="control-button" onmousedown="startMove('right')" onmouseup="stopMove()">
+            <div class="triangle-right"></div>
+        </button>
     </div>
 
     <p id="winMessage">Chúc mừng! Bạn đã thắng!</p>
@@ -115,13 +134,13 @@
 
     <script>
         // Game Variables
-        let tank = document.getElementById('tank');
+        let basket = document.getElementById('basket');
         let gameArea = document.getElementById('gameArea');
         let winMessage = document.getElementById('winMessage');
         let rewardMessage = document.getElementById('reward');
         let claimBtn = document.getElementById('claimBtn');
         let isGameRunning = false;
-        let tankX = 270;
+        let basketX = 270;
         let fallingItems = [];
         let score = 0;
         let gameInterval;
@@ -140,7 +159,7 @@
             gameInterval = setInterval(gameLoop, 100); // Cập nhật trò chơi
         }
 
-        // Move Tank (Left and Right)
+        // Move Basket (Left and Right)
         function handleKeydown(event) {
             if (event.code === 'ArrowLeft') {
                 startMove('left');
@@ -149,25 +168,25 @@
             }
         }
 
-        // Start Moving the Tank
+        // Start Moving the Basket
         function startMove(direction) {
             stopMove();
-            moveInterval = setInterval(() => moveTank(direction), 50);
+            moveInterval = setInterval(() => moveBasket(direction), 50);
         }
 
-        // Stop Moving the Tank
+        // Stop Moving the Basket
         function stopMove() {
             clearInterval(moveInterval);
         }
 
-        // Move Tank based on Direction
-        function moveTank(direction) {
-            if (direction === 'left' && tankX > 0) {
-                tankX -= 10;
-            } else if (direction === 'right' && tankX < 540) {
-                tankX += 10;
+        // Move Basket based on Direction
+        function moveBasket(direction) {
+            if (direction === 'left' && basketX > 0) {
+                basketX -= 10;
+            } else if (direction === 'right' && basketX < 540) {
+                basketX += 10;
             }
-            tank.style.left = `${tankX}px`;
+            basket.style.left = `${basketX}px`;
         }
 
         // Generate Falling Items
@@ -194,15 +213,15 @@
             }
         }
 
-        // Check Collision between Tank and Falling Items
+        // Check Collision between Basket and Falling Items
         function checkCollision() {
             for (let i = 0; i < fallingItems.length; i++) {
                 let fallingItem = fallingItems[i];
                 let itemX = parseInt(fallingItem.style.left.replace('px', ''));
                 let itemY = parseInt(fallingItem.style.top.replace('px', ''));
 
-                // Nếu vật phẩm chạm vào xe tăng
-                if (itemY >= 360 && itemX >= tankX && itemX <= tankX + 60) {
+                // Nếu vật phẩm chạm vào giỏ hàng
+                if (itemY >= 360 && itemX >= basketX && itemX <= basketX + 60) {
                     fallingItem.remove();
                     fallingItems.splice(i, 1);
                     score += 1;
@@ -220,4 +239,28 @@
             const reward = Math.floor(Math.random() * (50 - 10 + 1)) + 10;
             rewardMessage.textContent = `Phần thưởng của bạn là: ${reward}k đồng!`;
             rewardMessage.style.display = 'block';
-            claimBtn.style.display = 'block
+            claimBtn.style.display = 'block';
+        }
+
+        // Claim Reward
+        function claimReward() {
+            alert("Gọi số điện thoại nhận phần thưởng: 0975070643");
+        }
+
+        // Game Loop
+        function gameLoop() {
+            generateFallingItem();
+            moveFallingItems();
+            checkCollision();
+        }
+
+        // Di chuyển nút "Không đồng ý"
+        function moveButton() {
+            let btn = document.getElementById('disagreeBtn');
+            btn.style.position = 'absolute';
+            btn.style.left = Math.random() * (window.innerWidth - btn.offsetWidth) + 'px';
+            btn.style.top = Math.random() * (window.innerHeight - btn.offsetHeight) + 'px';
+        }
+    </script>
+</body>
+</html>

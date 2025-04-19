@@ -1,272 +1,127 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bạn cuti thật </title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-            -webkit-touch-callout: none; /* Chặn giữ nút để không bị bôi đen */
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        #introScreen {
-            margin-top: 50px;
-        }
-        #gameArea {
-            width: 600px;
-            height: 400px;
-            background-color: #f0f0f0;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
-            display: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .basket {
-            position: absolute;
-            bottom: 20px;
-            left: 270px;
-            width: 60px;
-            height: 40px;
-            background-color: #FF5733;
-            border-radius: 5px;
-        }
-        .coin {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
-        .coin.gold { background-color: yellow; } /* 1 điểm */
-        .coin.red { background-color: red; } /* 2 điểm */
-        .coin.pink { background-color: pink; } /* 3 điểm */
-        .coin.diamond { background-color: cyan; } /* 10 điểm */
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 5px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #winMessage, #reward, #timer {
-            font-size: 18px;
-            font-weight: bold;
-            display: none;
-        }
-        #mobileControls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .control-button {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-        }
-        .triangle-left, .triangle-right {
-            width: 0;
-            height: 0;
-            border-top: 15px solid transparent;
-            border-bottom: 15px solid transparent;
-        }
-        .triangle-left { border-right: 30px solid white; }
-        .triangle-right { border-left: 30px solid white; }
-        #scoreBoard { font-size: 18px; margin-top: 10px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tính Xu TikTok</title>
+  <style>
+    * {
+      box-sizing: border-box;
+
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f0f8ff, #e6f7ff);
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0077cc;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin: 15px 0 5px;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+    }
+
+    input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    button {
+      width: 100%;
+      background-color: #0077cc;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      color: #008000;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1 hey youuu (♥_♥) </h1>
 
-    <div id="introScreen">
-        <p>Làm quen với tớ nhé?</p>
-        <button id="agreeBtn" onclick="startGame()">Đồng ý</button>
-        <button id="disagreeBtn" onclick="moveButton()">Không đồng ý</button>
-    </div>
+  <div class="container">
+    <h2>Tính Tổng Xu & Quy Đổi Tiền</h2>
 
-    <div id="gameArea">
-        <div id="basket" class="basket"></div>
-    </div>
+    <label for="xuInput">Dán danh sách xu (phân cách bằng dấu cách, dấu phẩy, xuống dòng...):</label>
+    <textarea id="xuInput" rows="5" placeholder="Ví dụ: 1000 2000 500 3000"></textarea>
 
-    <div id="scoreBoard">tích xu đổi thưởng : <span id="score">0</span></div>
-    <div id="timer">Thời gian còn lại: <span id="time">31</span>s</div>
+    <label for="giaInput">Giá mỗi 1000 xu (VNĐ):</label>
+    <input type="number" id="giaInput" placeholder="Ví dụ: 80000">
 
-    <div id="mobileControls" style="display: none;">
-        <button class="control-button" onmousedown="startMove('left')" onmouseup="stopMove()" ontouchstart="startMove('left')" ontouchend="stopMove()">
-            <div class="triangle-left"></div>
-        </button>
-        <button class="control-button" onmousedown="startMove('right')" onmouseup="stopMove()" ontouchstart="startMove('right')" ontouchend="stopMove()">
-            <div class="triangle-right"></div>
-        </button>
-    </div>
+    <button onclick="tinhTien()">Tính Tiền</button>
 
-    <p id="winMessage">Chúc mừng! Bạn đã thắng!</p>
-    <p id="reward"></p>
-    <button id="claimBtn" onclick="claimReward()" style="display: none;">Nhận phần thưởng</button>
+    <div class="result" id="ketQua"></div>
+  </div>
 
-    <script>
-        let basket = document.getElementById('basket');
-        let gameArea = document.getElementById('gameArea');
-        let winMessage = document.getElementById('winMessage');
-        let rewardMessage = document.getElementById('reward');
-        let claimBtn = document.getElementById('claimBtn');
-        let scoreDisplay = document.getElementById('score');
-        let timerDisplay = document.getElementById('time');
-        let basketX = 270;
-        let fallingItems = [];
-        let score = 0;
-        let timeRemaining = 31;
-        let moveInterval;
-        let gameInterval, timerInterval;
+  <script>
+    function tinhTien() {
+      const xuText = document.getElementById("xuInput").value;
+      const gia = parseFloat(document.getElementById("giaInput").value) || 0;
 
-        function startGame() {
-            document.getElementById('introScreen').style.display = 'none';
-            gameArea.style.display = 'block';
-            document.getElementById('mobileControls').style.display = 'flex';
-            score = 0;
-            scoreDisplay.textContent = score;
-            timeRemaining = 31;
-            timerDisplay.textContent = timeRemaining;
-            fallingItems = [];
-            gameInterval = setInterval(gameLoop, 100);
-            timerInterval = setInterval(countdown, 1000);
-        }
+      const xuList = xuText
+        .replace(/\n/g, " ")
+        .replace(/,/g, " ")
+        .split(" ")
+        .map(x => parseInt(x.trim()))
+        .filter(x => !isNaN(x));
 
-        function countdown() {
-            if (timeRemaining > 0) {
-                timeRemaining--;
-                timerDisplay.textContent = timeRemaining;
-            } else {
-                endGame();
-            }
-        }
+      const tongXu = xuList.reduce((a, b) => a + b, 0);
+      const tien = (tongXu / 1000) * gia;
 
-        function endGame() {
-            clearInterval(gameInterval);
-            clearInterval(timerInterval);
-            showWinMessage();
-        }
+      document.getElementById("ketQua").innerHTML =
+        `Tổng xu: <b>${tongXu.toLocaleString()}</b><br>` +
+        `Số tiền: <b>${tien.toLocaleString()} VNĐ</b>`;
+    }
+  </script>
 
-        function startMove(direction) {
-            stopMove();
-            moveInterval = setInterval(() => moveBasket(direction), 50);
-        }
-
-        function stopMove() {
-            clearInterval(moveInterval);
-        }
-
-        function moveBasket(direction) {
-            if (direction === 'left' && basketX > 0) {
-                basketX -= 10;
-            } else if (direction === 'right' && basketX < 540) {
-                basketX += 10;
-            }
-            basket.style.left = `${basketX}px`;
-        }
-
-        function generateFallingItem() {
-            let fallingItem = document.createElement('div');
-            let randomType = Math.random();
-            if (randomType < 0.7) {
-                fallingItem.classList.add('coin', 'gold');
-                fallingItem.dataset.points = 1;
-            } else if (randomType < 0.9) {
-                fallingItem.classList.add('coin', 'red');
-                fallingItem.dataset.points = 2;
-            } else if (randomType < 0.98) {
-                fallingItem.classList.add('coin', 'pink');
-                fallingItem.dataset.points = 3;
-            } else {
-                fallingItem.classList.add('coin', 'diamond');
-                fallingItem.dataset.points = 10;
-            }
-            fallingItem.style.left = `${Math.floor(Math.random() * 580)}px`;
-            fallingItem.style.top = '0px';
-            gameArea.appendChild(fallingItem);
-            fallingItems.push(fallingItem);
-        }
-
-        function moveFallingItems() {
-            for (let i = 0; i < fallingItems.length; i++) {
-                let fallingItem = fallingItems[i];
-                let speed = 5;
-                if (fallingItem.classList.contains('pink')) speed = 8;
-                else if (fallingItem.classList.contains('diamond')) speed = 12;
-                
-                let itemY = parseInt(fallingItem.style.top.replace('px', '') || 0);
-                if (itemY > 400) {
-                    fallingItem.remove();
-                    fallingItems.splice(i, 1);
-                } else {
-                    fallingItem.style.top = `${itemY + speed}px`;
-                }
-            }
-        }
-
-        function checkCollision() {
-            for (let i = 0; i < fallingItems.length; i++) {
-                let item = fallingItems[i];
-                let itemRect = item.getBoundingClientRect();
-                let basketRect = basket.getBoundingClientRect();
-
-                if (itemRect.bottom > basketRect.top &&
-                    itemRect.right > basketRect.left &&
-                    itemRect.left < basketRect.right) {
-                    score += parseInt(item.dataset.points);
-                    scoreDisplay.textContent = score;
-                    item.remove();
-                    fallingItems.splice(i, 1);
-                    if (score >= 100) endGame();
-                }
-            }
-        }
-
-        function showWinMessage() {
-            let cashReward = (Math.floor(score / 10) * 1000).toLocaleString();
-            winMessage.style.display = 'block';
-            rewardMessage.style.display = 'block';
-            rewardMessage.textContent = `Bạn đã thu thập được ${cashReward} VND!`;
-            claimBtn.style.display = 'inline';
-        }
-
-        function claimReward() {
-            alert("chụp màn hình gửi zalo tớ nhé: 0975070643");
-        }
-
-        function moveButton() {
-            let btn = document.getElementById('disagreeBtn');
-            btn.style.position = 'absolute';
-            btn.style.left = Math.random() * (window.innerWidth - btn.offsetWidth) + 'px';
-            btn.style.top = Math.random() * (window.innerHeight - btn.offsetHeight) + 'px';
-        }
-
-        function gameLoop() {
-            if (Math.random() < 0.1) generateFallingItem();
-            moveFallingItems();
-            checkCollision();
-        }
-    </script>
 </body>
 </html>
